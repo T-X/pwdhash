@@ -29,7 +29,7 @@
 <script src="chrome://stanford-pwdhash/content/stanford-pwdhash.js" />
 <script src="chrome://stanford-pwdhash/content/hashed-password.js" />
 <script src="chrome://stanford-pwdhash/content/domain-extractor.js" />
-<script src="chrome://stanford-pwdhash/content/md5.js" />
+<script src="chrome://stanford-pwdhash/content/sha512.js" />
 
 </overlay>
 
