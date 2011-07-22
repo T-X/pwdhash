@@ -29,9 +29,21 @@ function SPH_HashedPassword(password, realm) {
  * for the HMAC and the realm as the message. In the next (n-1)
  * rounds the last generated hash string of the sha512-hmac
  * in base 64 encoding is being used as the new message.
+ *
+ * It tries to get the number of rounds from the browser's preferences
+ * first. If they are not available, the default of 256 rounds is being used.
  */
-function stretched_b64_hmac_sha512(password, realm, n)
+function stretched_b64_hmac_sha512(password, realm)
 {
+    try {
+        var prefs = Components.classes["@mozilla.org/preferences-service;1"]
+                              .getService(Components.interfaces.nsIPrefService)
+                              .getBranch("extensions.pwdhash.");
+        var n = prefs.getIntPref("rounds");
+    } catch (err) {
+        var n = 256;
+    }
+
     var hash = b64_hmac_sha512(password, realm);
     for (var i = 1; i < n; i++) {
         hash = b64_hmac_sha512(password, hash);
@@ -45,7 +57,7 @@ SPH_HashedPassword.prototype = {
    * Determine the hashed password from the salt and the master password
    */
   _getHashedPassword: function(password, realm) {
-    var hash = stretched_b64_hmac_sha512(password, realm, 256);
+    var hash = stretched_b64_hmac_sha512(password, realm);
     var size = password.length + SPH_kPasswordPrefix.length;
     var nonalphanumeric = password.match(/\W/) != null;
     var result = this._applyConstraints(hash, size, nonalphanumeric);
