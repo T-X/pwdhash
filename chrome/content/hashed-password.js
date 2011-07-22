@@ -22,13 +22,30 @@ function SPH_HashedPassword(password, realm) {
   this.toString = function() { return hashedPassword; }
 }
 
+/**
+ * Calculates n times the base 64 encoded HMAC with SHA512.
+ *
+ * In the first round the password is being used as the key
+ * for the HMAC and the realm as the message. In the next (n-1)
+ * rounds the last generated hash string of the sha512-hmac
+ * in base 64 encoding is being used as the new message.
+ */
+function stretched_b64_hmac_sha512(password, realm, n)
+{
+    var hash = b64_hmac_sha512(password, realm);
+    for (var i = 1; i < n; i++) {
+        hash = b64_hmac_sha512(password, hash);
+    }
+    return hash;
+}
+
 SPH_HashedPassword.prototype = {
 
   /**
    * Determine the hashed password from the salt and the master password
    */
   _getHashedPassword: function(password, realm) {
-    var hash = b64_hmac_sha512(password, realm);
+    var hash = stretched_b64_hmac_sha512(password, realm, 256);
     var size = password.length + SPH_kPasswordPrefix.length;
     var nonalphanumeric = password.match(/\W/) != null;
     var result = this._applyConstraints(hash, size, nonalphanumeric);
