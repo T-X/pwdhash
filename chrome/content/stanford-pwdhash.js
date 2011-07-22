@@ -89,7 +89,7 @@ SPH_PasswordKeyMonitor.prototype = {
      }
 
      // Detect Password Prefix
-     if (evt.type == "keypress") {
+     if (evt.type == "keypress" && !evt.charCode == 0) {
        var lastChar = String.fromCharCode(evt.charCode);
        this.keystream.push(lastChar);
 
@@ -234,6 +234,8 @@ SPH_PasswordProtector.prototype = {
     }
 
     if(evt.alreadyIntercepted) return; // Ignore self-generated keystrokes
+
+    if(evt.charCode == 0) return; // Ignore dead/meta key strokes
 
     // We need to make sure the user's printable key events don't leak
     if((evt.type == "keydown" || evt.type == "keyup") &&
